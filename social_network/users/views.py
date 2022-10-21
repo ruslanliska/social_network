@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
-from .models import Profile
-from .serializers import ProfileSerializer
+from .models import Profile, Post
+from .serializers import ProfileSerializer, PostsSerializer
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from django.contrib.auth.models import User
@@ -50,3 +50,22 @@ def user_profile(request, pk):
     elif request.method == 'DELETE':
         profile.delete()
         return HttpResponse(status=204)
+
+
+@csrf_exempt
+def posts_list(request):
+    if request.method == "GET":
+        profiles = Post.objects.all()
+        serializer = PostsSerializer(profiles, many=True)
+        return JsonResponse(serializer.data, safe=False)
+
+    elif request.method == "POST":
+        data = JSONParser().parse(request)
+        serializer = PostsSerializer(data=data)
+        # Profile.last_request = datetime.now()
+
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        else:
+            return JsonResponse(serializer.errors, status=400)

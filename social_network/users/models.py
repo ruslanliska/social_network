@@ -1,4 +1,3 @@
-from django.db import models
 import uuid
 
 from django.contrib.auth.models import User
@@ -15,3 +14,17 @@ class Profile(models.Model):
 
     def __str__(self):
         return str(self.name)
+
+
+class Post(models.Model):
+    owner = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
+    body = models.TextField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    likes = models.IntegerField(default=0, null=True, blank=True)
+    dislikes = models.IntegerField(default=0, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created']
+
+    def __str__(self):
+        return self.body
